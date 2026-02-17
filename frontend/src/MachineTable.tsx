@@ -34,7 +34,7 @@ export default function MachineTable({ machines, onEdit, onDelete }: Props) {
         </TableHead>
         <TableBody>
           {machines.map((m) => (
-            <TableRow key={m.id}>
+            <TableRow key={m.id} className={"cursor-pointer"}>
               <TableCell>{m.name}</TableCell>
               <TableCell>{m.manufacturer}</TableCell>
               <TableCell>{`${m.purchase_price} €`}</TableCell>

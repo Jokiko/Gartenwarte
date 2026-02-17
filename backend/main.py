@@ -105,7 +105,7 @@ def delete_machine(machine_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Nicht gefunden")
 
     # delete the file folder of this machine
-    folder_path = os.path.join("uploads", "machines", machine_id)
+    folder_path = BASE_DATA_DIR / "uploads" / "machines" / machine_id
     if os.path.exists(folder_path):
         shutil.rmtree(folder_path)
 
