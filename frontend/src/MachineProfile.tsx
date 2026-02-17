@@ -1,0 +1,235 @@
+import React, {useState} from "react";
+import {
+    Card,
+    CardContent,
+    Typography,
+    Button,
+    Divider, IconButton, Dialog
+} from "@mui/material";
+import UploadIcon from "@mui/icons-material/Upload";
+import type {Machine} from "./types";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
+
+interface Props {
+  machine: Machine;
+  onImageUpload: (file: File) => void;
+  onFileDelete: (file_id: string) => void;
+}
+
+export const MachineProfile: React.FC<Props> = ({
+  machine,
+  onImageUpload,
+  onFileDelete
+}) => {
+  const images =
+    machine.files?.filter(f => f.mime_type.startsWith("image/")) ?? [];
+
+  const documents =
+    machine.files?.filter(f => f.mime_type === "application/pdf") ?? [];
+
+  const primaryImage = images[0];
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    onImageUpload(e.target.files[0]);
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+
+      <Card className="rounded-2xl shadow-xl">
+        <CardContent>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
+            {/* head info */}
+            <div className="flex-1">
+              <Typography variant="h4" className="font-bold">
+                {machine.name}
+              </Typography>
+
+              <Typography className="text-gray-500 mt-2">
+                {machine.manufacturer} • {machine.category} {machine.article_number ? `• Artikel-Nr: ${machine.article_number}` : ""}
+              </Typography>
+            </div>
+
+            {/* main image */}
+            {primaryImage && (
+              <div className="w-full md:w-64">
+                <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-md">
+                  <img
+                    src={`http://localhost:8000/uploads/${primaryImage.file_path}`}
+                    alt={primaryImage.original_filename}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+
+          </div>
+        </CardContent>
+      </Card>
+
+
+      <div className="grid md:grid-cols-2 gap-6">
+
+        {/* finances */}
+        <Card className="rounded-2xl shadow-md">
+          <CardContent className="space-y-2">
+            <Typography variant="h6" className="font-semibold">
+              Finanzen
+            </Typography>
+            <Divider />
+            <p>Neupreis: {machine.original_price ?? "?"} €</p>
+            <div className={"flex gap-1"}>
+            <p>Anschaffungspreis: </p><p className={"font-bold"}>{machine.purchase_price ? String(machine.purchase_price?.toFixed(2)) : "?"} €</p>
+            </div>
+            <p>Anschaffungsdatum: {machine.purchase_date ? new Date(machine.purchase_date!).toLocaleDateString("de", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric"
+                }) :  "-"}</p>
+            <p className={"whitespace-pre-wrap"}>Händler: {machine.vendor ?? "-"}</p>
+            <p>AfA: {machine.afa ?? "-"} %</p>
+          </CardContent>
+        </Card>
+
+        {/* maintenance */}
+        <Card className="rounded-2xl shadow-md">
+          <CardContent>
+            <Typography variant="h6" className="font-semibold">
+              Wartung
+            </Typography>
+            <Divider className="my-2" />
+
+            <p className="mb-2">
+              Letzte Wartung: {machine.last_maintenance_date ? new Date(machine.last_maintenance_date!).toLocaleDateString("de", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric"
+                }) :  "-"}
+            </p>
+
+            <p className="mb-2">Kosten letzte Wartung: {machine.last_maintenance_costs ?? "?"} €</p>
+
+            <p className="mb-2">
+              Nächste Wartung: {machine.next_maintenance_date ? new Date(machine.next_maintenance_date!).toLocaleDateString("de", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric"
+                }) :  "-"}
+            </p>
+
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* image gallery */}
+      <Card className="rounded-2xl shadow-md">
+        <CardContent>
+          <div className="flex justify-between items-center mb-4">
+            <Typography variant="h6" className="font-semibold">
+              Bilder
+            </Typography>
+
+            <Button
+              variant="contained"
+              component="label"
+              startIcon={<UploadIcon />}
+            >
+              Bild hochladen
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleUpload}
+              />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {images.map((img) => (
+              <div
+                key={img.id}
+                className="relative h-40 overflow-hidden rounded-xl shadow"
+              >
+                <img
+                  src={`http://localhost:8000/uploads/${img.file_path}`}
+                  alt={img.original_filename}
+                  onClick={() =>
+                    setSelectedImage(`http://localhost:8000/uploads/${img.file_path}`)
+                  }
+                  className="w-full h-full cursor-pointer object-cover hover:scale-105 transition"
+                />
+
+               {/* delete button */}
+                    <div className="absolute top-2 right-2 z-10">
+                      <IconButton
+                        size="small"
+                        onClick={() => onFileDelete(img.id)}
+                        className="bg-white/80 backdrop-blur-sm hover:bg-red-500 hover:text-white transition"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* documents */}
+      <Card className="rounded-2xl shadow-md">
+        <CardContent>
+          <Typography variant="h6" className="font-semibold mb-4">
+            Dokumente
+          </Typography>
+
+          <ul className="space-y-2">
+            {documents.map((doc) => (
+              <li key={doc.id}>
+                <a
+                  href={`http://localhost:8000/uploads/${doc.file_path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  {doc.original_filename}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Dialog
+          open={Boolean(selectedImage)}
+          onClose={() => setSelectedImage(null)}
+          maxWidth="lg"
+        >
+        <div className="relative bg-black">
+
+          {/* close button */}
+          <IconButton
+            onClick={() => setSelectedImage(null)}
+            className="!absolute top-3 right-3 !text-white !bg-black/40 hover:!bg-black/70 z-10"
+          >
+            <CloseIcon />
+          </IconButton>
+
+          {/* image */}
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Vollansicht"
+              className="max-h-[90vh] max-w-[90vw] object-contain"
+            />
+          )}
+        </div>
+      </Dialog>
+
+    </div>
+  );
+};

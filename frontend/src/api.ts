@@ -14,5 +14,14 @@ export const createMachine = (data: Machine) =>
 export const updateMachine = (id: string, data: Machine) =>
   API.put<Machine>(`/machines/${id}`, data);
 
+export const getMachineInfo = (id: string) =>
+    API.get<Machine>(`/machines/${id}`)
+
 export const deleteMachine = (id: string) =>
   API.delete(`/machines/${id}`);
+
+export const uploadFile = (id: string, file: any) =>
+    API.post<Machine>(`/machines/${id}/upload`, file)
+
+export const deleteFile = (id: string) =>
+    API.delete(`files/${id}`)

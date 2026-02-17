@@ -167,9 +167,16 @@ def delete_file(file_id: str, db: Session = Depends(get_db)):
     if not db_file:
         raise HTTPException(status_code=404, detail="Datei nicht gefunden")
 
+    absolute_path = BASE_DATA_DIR / "uploads" / db_file.file_path
+
     # delete physical file
-    if os.path.exists(db_file.file_path):
-        os.remove(db_file.file_path)
+    if absolute_path.exists() and absolute_path.is_file():
+        absolute_path.unlink()
+
+    # delete folder if empty
+    parent_folder = absolute_path.parent
+    if parent_folder.exists() and not any(parent_folder.iterdir()):
+        parent_folder.rmdir()
 
     # delete DB entry
     db.delete(db_file)

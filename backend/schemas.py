@@ -16,11 +16,16 @@ class Maintenance(MaintenanceBase):
 class MachineBase(BaseModel):
     name: str
     category: Optional[str] = None
+    manufacturing_year: Optional[str] = None
+    original_price: Optional[float] = None
     purchase_date: Optional[date] = None
     purchase_price: Optional[float] = None
     vendor: Optional[str] = None
     manufacturer: Optional[str] = None
     next_maintenance_date: Optional[date] = None
+    last_maintenance_date: Optional[date] = None
+    last_maintenance_costs: Optional[float] = None
+    article_number: Optional[str] = None
     afa: Optional[float] = None
     notes: Optional[str] = None
 
