@@ -68,6 +68,7 @@ function App() {
         const newMachine = (await getMachineInfo(displayMachine.id!)).data
         console.log(newMachine)
         setDisplayMachine(newMachine)
+        await loadMachines();
       }
     )
   }
@@ -78,6 +79,7 @@ function App() {
         const newMachine = (await getMachineInfo(displayMachine.id!)).data
         console.log(newMachine)
         setDisplayMachine(newMachine)
+        await loadMachines();
       })
   }
 
