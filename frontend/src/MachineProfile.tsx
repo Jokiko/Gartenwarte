@@ -33,10 +33,14 @@ export const MachineProfile: React.FC<Props> = ({
   const documents =
     machine.files?.filter(f => f.mime_type === "application/pdf") ?? [];
 
+  const purchaseInvoice = documents.find(f => f.category === "purchaseInvoice" ) ?? null
+  const maintenanceInvoice = documents.find(f => f.category === "maintenanceInvoice") ?? null
+  const galleryDocs = documents.filter(f => f.category === "misc")
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+  const [deletionString, setDeletionString] = useState<string>("")
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>, category?: string | undefined) => {
     if (!e.target.files?.length) return;
@@ -44,7 +48,7 @@ export const MachineProfile: React.FC<Props> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
+    <div className="max-w-6xl mx-auto min-w-200 p-6 space-y-8">
 
       <Card className="rounded-2xl shadow-xl">
         <CardContent>
@@ -78,7 +82,10 @@ export const MachineProfile: React.FC<Props> = ({
                     <div className="absolute bottom-2 left-2 z-10">
                       <IconButton
                         size="small"
-                        onClick={() => setFileToDelete(primaryImage.id)}
+                        onClick={() => {
+                          setDeletionString("Bild")
+                          setFileToDelete(primaryImage.id)}
+                        }
                         className="bg-white/80 backdrop-blur-sm hover:bg-red-500 hover:text-white transition"
                       >
                         <DeleteIcon fontSize="small" />
@@ -89,19 +96,19 @@ export const MachineProfile: React.FC<Props> = ({
               </div>
             ) :
 
-                  <Button
-                    variant="contained"
-                    component="label"
-                    startIcon={<UploadIcon />}
-                  >
-                    Hauptbild hochladen
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={(e) => handleUpload(e, "profile_pic")}
-                    />
-                  </Button>
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<UploadIcon />}
+              >
+                Hauptbild hochladen
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={(e) => handleUpload(e, "profile_pic")}
+                />
+              </Button>
 
             }
 
@@ -129,6 +136,46 @@ export const MachineProfile: React.FC<Props> = ({
                   year: "numeric"
                 }) :  "-"}</p>
             <p className={"whitespace-pre-wrap"}>Händler: {machine.vendor ?? "-"}</p>
+            { /* display invoice pdf*/ }
+            {purchaseInvoice ?
+              <li
+                  key={purchaseInvoice.id}
+                  className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg"
+              >
+                <a
+                  href={`http://localhost:8000/uploads/${purchaseInvoice.file_path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline truncate"
+                >
+                  {purchaseInvoice.original_filename}
+                </a>
+
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setDeletionString("PDF")
+                    setFileToDelete(purchaseInvoice.id)}
+                  }
+                  className="hover:bg-red-500 hover:text-white transition"
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </li> :
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<UploadIcon />}
+              >
+                Rechnung hochladen
+                <input
+                  type="file"
+                  hidden
+                  accept="application/pdf"
+                  onChange={ (e) => handleUpload(e, "purchaseInvoice")}
+                />
+              </Button>
+            }
             <p>AfA: {machine.afa ?? "-"} %</p>
           </CardContent>
         </Card>
@@ -151,7 +198,48 @@ export const MachineProfile: React.FC<Props> = ({
 
             <p className="mb-2">Kosten letzte Wartung: {machine.last_maintenance_costs ?? "?"} €</p>
 
-            <p className="mb-2">
+            { /* display invoice pdf*/ }
+            {maintenanceInvoice ?
+              <li
+                  key={maintenanceInvoice.id}
+                  className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg"
+              >
+                <a
+                  href={`http://localhost:8000/uploads/${maintenanceInvoice.file_path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline truncate"
+                >
+                  {maintenanceInvoice.original_filename}
+                </a>
+
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setDeletionString("PDF")
+                    setFileToDelete(maintenanceInvoice.id)}
+                  }
+                  className="hover:bg-red-500 hover:text-white transition"
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </li> :
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<UploadIcon />}
+              >
+                Rechnung hochladen
+                <input
+                  type="file"
+                  hidden
+                  accept="application/pdf"
+                  onChange={ (e) => handleUpload(e, "maintenanceInvoice")}
+                />
+              </Button>
+            }
+
+            <p className="mb-2 mt-2">
               Nächste Wartung: {machine.next_maintenance_date ? new Date(machine.next_maintenance_date!).toLocaleDateString("de", {
                   day: "2-digit",
                   month: "2-digit",
@@ -202,15 +290,18 @@ export const MachineProfile: React.FC<Props> = ({
                 />
 
                {/* delete button */}
-                    <div className="absolute top-2 right-2 z-10">
-                      <IconButton
-                        size="small"
-                        onClick={() => setFileToDelete(img.id)}
-                        className="bg-white/80 backdrop-blur-sm hover:bg-red-500 hover:text-white transition"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </div>
+                <div className="absolute top-2 right-2 z-10">
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setDeletionString("Bild")
+                      setFileToDelete(img.id)}
+                    }
+                    className="bg-white/80 backdrop-blur-sm hover:bg-red-500 hover:text-white transition"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </div>
               </div>
             ))}
           </div>
@@ -220,21 +311,51 @@ export const MachineProfile: React.FC<Props> = ({
       {/* documents */}
       <Card className="rounded-2xl shadow-md">
         <CardContent>
-          <Typography variant="h6" className="font-semibold mb-4">
-            Dokumente
-          </Typography>
+          <div className="flex justify-between items-center mb-4">
+            <Typography variant="h6" className="font-semibold mb-4">
+              Dokumente
+            </Typography>
+
+            <Button
+              variant="contained"
+              component="label"
+              startIcon={<UploadIcon />}
+            >
+              PDF hochladen
+              <input
+                type="file"
+                hidden
+                accept="application/pdf"
+                onChange={ (e) => handleUpload(e, "misc")}
+              />
+            </Button>
+          </div>
 
           <ul className="space-y-2">
-            {documents.map((doc) => (
-              <li key={doc.id}>
+            {galleryDocs.map((doc) => (
+              <li
+                key={doc.id}
+                className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg"
+              >
                 <a
                   href={`http://localhost:8000/uploads/${doc.file_path}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-600 hover:underline truncate"
                 >
                   {doc.original_filename}
                 </a>
+
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setDeletionString("PDF")
+                    setFileToDelete(doc.id)}
+                  }
+                  className="hover:bg-red-500 hover:text-white transition"
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               </li>
             ))}
           </ul>
@@ -269,7 +390,7 @@ export const MachineProfile: React.FC<Props> = ({
       </Dialog>
 
       {/* deletion confirmation */}
-      <DeleteDialog dataToDelete={fileToDelete} setDataToDelete={setFileToDelete} onDelete={onFileDelete} deletionString={"Bild"}/>
+      <DeleteDialog dataToDelete={fileToDelete} setDataToDelete={setFileToDelete} onDelete={onFileDelete} deletionString={deletionString}/>
 
     </div>
   );

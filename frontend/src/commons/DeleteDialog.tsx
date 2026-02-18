@@ -23,7 +23,7 @@ export default function DeleteDialog( {dataToDelete, setDataToDelete, onDelete, 
             Diese Aktion kann nicht rückgängig gemacht werden.
           </Typography>
 
-          <div className="flex justify-end gap-3 mt-4">
+          <div className="flex justify-between gap-3 mt-4">
             <Button
               variant="outlined"
               onClick={() => setDataToDelete(null)}
