@@ -8,6 +8,9 @@ const API = axios.create({
 export const getMachines = () =>
   API.get<Machine[]>("/machines");
 
+export const getMachinesOrdered = (attribute: string, order: string) =>
+  API.get<Machine[]>(`/machines?sort_by=${attribute}&order=${order}`)
+
 export const createMachine = (data: Machine) =>
   API.post<Machine>("/machines", data);
 

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import type {Machine} from "./types";
 import {
-  getMachines,
-  createMachine,
-  updateMachine,
-  deleteMachine, uploadFile, deleteFile, getMachineInfo,
+    getMachines,
+    createMachine,
+    updateMachine,
+    deleteMachine, uploadFile, deleteFile, getMachineInfo, getMachinesOrdered,
 } from "./api";
 import MachineForm from "./MachineForm";
 import MachineTable from "./MachineTable.tsx";
@@ -20,15 +20,28 @@ function App() {
   const [editing, setEditing] = useState<Machine | null>(null);
   const [showMachineForm, setShowMachineForm] = useState(false)
   const [displayMachine, setDisplayMachine] = useState<Machine | null>(null)
+  const [machinesOrder, setMachinesOrder] = useState<string[]>([])
 
   const loadMachines = async () => {
     const res = await getMachines();
     setMachines(res.data);
   };
 
+  const orderMachines = async (machinesOrder: string[]) => {
+      const res = await getMachinesOrdered(machinesOrder[0], machinesOrder[1])
+      setMachines(res.data)
+  }
+
   useEffect(() => {
-    loadMachines();
-  }, []);
+    if(machinesOrder[0] === undefined){
+        loadMachines().then();
+    }
+    else{
+        orderMachines(machinesOrder).then()
+    }
+
+  }, [machinesOrder]);
+
 
   const handleSubmit = async (data: Machine) => {
     if (editing && editing.id) {
@@ -40,11 +53,13 @@ function App() {
     setEditing(null)
     setShowMachineForm(false)
     await loadMachines();
+    setMachinesOrder([])
   };
 
   const handleDelete = async (id: string) => {
     await deleteMachine(id);
     await loadMachines();
+    setMachinesOrder([])
   };
 
   const handleEditing = (data: Machine) => {
@@ -57,6 +72,7 @@ function App() {
     setShowMachineForm(true)
     setDisplayMachine(null)
     setEditing(null)
+    setMachinesOrder([])
   }
 
   const handleFileupload = async (file: any)=>  {
@@ -97,7 +113,7 @@ function App() {
 
       <div className={"flex"}>
 
-        <MachineTable machines={machines} onEdit={handleEditing} onDelete={handleDelete} onClick={setDisplayMachine}/>
+        <MachineTable machines={machines} onEdit={handleEditing} onDelete={handleDelete} onClick={setDisplayMachine} order={machinesOrder} setOrder={setMachinesOrder}/>
 
         {/*<div className=" p-6 mb-8 flex-1">
           { displayMachine !== null
@@ -123,7 +139,7 @@ function App() {
         >
         <div className="relative">
 
-          {/* close buttonN */}
+          {/* close buttonn */}
           <IconButton
             onClick={() => {
               setDisplayMachine(null)

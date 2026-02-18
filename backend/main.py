@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException,UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException,UploadFile, File, Query
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import asc, desc
 from database import SessionLocal, engine
 from models import Base, Machine, MachineFile
 from schemas import MachineCreate, MachineResponse
@@ -72,8 +73,23 @@ def create_machine(machine: MachineCreate, db: Session = Depends(get_db)):
 
 # READ ALL
 @app.get("/machines", response_model=List[MachineResponse])
-def get_machines(db: Session = Depends(get_db)):
-    return db.query(Machine).all()
+def get_machines(sort_by: str | None = Query(None), order: str = Query("asc"), db: Session = Depends(get_db)):
+    query = db.query(Machine)
+
+    if sort_by:
+        # check if attribute exists
+        if hasattr(Machine, sort_by):
+            column = getattr(Machine, sort_by)
+
+            # default to ascending order if not specified otherwise
+            if order == "desc":
+                query = query.order_by(desc(column))
+            else:
+                query = query.order_by(asc(column))
+        else:
+            raise HTTPException(status_code=400, detail="Ungültiges Sortierfeld")
+
+    return query.all()
 
 # READ ONE
 @app.get("/machines/{machine_id}", response_model=MachineResponse)
