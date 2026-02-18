@@ -37,6 +37,7 @@ class MachineFile(BaseModel):
     original_filename: Optional[str] = None
     file_type: str              # "image" | "document"
     mime_type: Optional[str] = None
+    category: Optional[str] = None
 
     class Config:
         from_attributes = True

@@ -134,7 +134,8 @@ def delete_machine(machine_id: str, db: Session = Depends(get_db)):
 def upload_file(
     machine_id: str,
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    category: str | None = Query(default=None),
 ):
     machine = db.query(Machine).filter(Machine.id == machine_id).first()
     if not machine:
@@ -165,7 +166,8 @@ def upload_file(
         file_path=str(relative_path),
         original_filename=file.filename,
         file_type=file_type,
-        mime_type=file.content_type
+        mime_type=file.content_type,
+        category = category
     )
 
     db.add(db_file)

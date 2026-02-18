@@ -10,10 +10,11 @@ import UploadIcon from "@mui/icons-material/Upload";
 import type {Machine} from "./types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteDialog from "./commons/DeleteDialog.tsx";
 
 interface Props {
   machine: Machine;
-  onImageUpload: (file: File) => void;
+  onImageUpload: (file: File, category?: string) => void;
   onFileDelete: (file_id: string) => void;
 }
 
@@ -25,16 +26,21 @@ export const MachineProfile: React.FC<Props> = ({
   const images =
     machine.files?.filter(f => f.mime_type.startsWith("image/")) ?? [];
 
+  const primaryImage = images.find(f => f.category === "profile_pic") ?? images[0] ?? null;
+  const galleryImages = images.filter(f => f.category === "gallery")
+  console.log(images)
+
   const documents =
     machine.files?.filter(f => f.mime_type === "application/pdf") ?? [];
 
-  const primaryImage = images[0];
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>, category?: string | undefined) => {
     if (!e.target.files?.length) return;
-    onImageUpload(e.target.files[0]);
+    onImageUpload(e.target.files[0], category);
   };
 
   return (
@@ -56,17 +62,48 @@ export const MachineProfile: React.FC<Props> = ({
             </div>
 
             {/* main image */}
-            {primaryImage && (
+            {primaryImage ? (
               <div className="w-full md:w-64">
                 <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-md">
                   <img
                     src={`http://localhost:8000/uploads/${primaryImage.file_path}`}
                     alt={primaryImage.original_filename}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                    onClick={() =>
+                      setSelectedImage(`http://localhost:8000/uploads/${primaryImage.file_path}`)
+                    }
                   />
+
+                  {/* delete button */}
+                    <div className="absolute bottom-2 left-2 z-10">
+                      <IconButton
+                        size="small"
+                        onClick={() => setFileToDelete(primaryImage.id)}
+                        className="bg-white/80 backdrop-blur-sm hover:bg-red-500 hover:text-white transition"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </div>
+
                 </div>
               </div>
-            )}
+            ) :
+
+                  <Button
+                    variant="contained"
+                    component="label"
+                    startIcon={<UploadIcon />}
+                  >
+                    Hauptbild hochladen
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={(e) => handleUpload(e, "profile_pic")}
+                    />
+                  </Button>
+
+            }
 
           </div>
         </CardContent>
@@ -131,7 +168,7 @@ export const MachineProfile: React.FC<Props> = ({
         <CardContent>
           <div className="flex justify-between items-center mb-4">
             <Typography variant="h6" className="font-semibold">
-              Bilder
+              Weitere Bilder
             </Typography>
 
             <Button
@@ -144,13 +181,13 @@ export const MachineProfile: React.FC<Props> = ({
                 type="file"
                 hidden
                 accept="image/*"
-                onChange={handleUpload}
+                onChange={(e) => handleUpload(e, "gallery")}
               />
             </Button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {images.map((img) => (
+            {galleryImages && galleryImages.map((img) => (
               <div
                 key={img.id}
                 className="relative h-40 overflow-hidden rounded-xl shadow"
@@ -168,7 +205,7 @@ export const MachineProfile: React.FC<Props> = ({
                     <div className="absolute top-2 right-2 z-10">
                       <IconButton
                         size="small"
-                        onClick={() => onFileDelete(img.id)}
+                        onClick={() => setFileToDelete(img.id)}
                         className="bg-white/80 backdrop-blur-sm hover:bg-red-500 hover:text-white transition"
                       >
                         <DeleteIcon fontSize="small" />
@@ -204,6 +241,7 @@ export const MachineProfile: React.FC<Props> = ({
         </CardContent>
       </Card>
 
+      {/* enlarged image */}
       <Dialog
           open={Boolean(selectedImage)}
           onClose={() => setSelectedImage(null)}
@@ -229,6 +267,9 @@ export const MachineProfile: React.FC<Props> = ({
           )}
         </div>
       </Dialog>
+
+      {/* deletion confirmation */}
+      <DeleteDialog dataToDelete={fileToDelete} setDataToDelete={setFileToDelete} onDelete={onFileDelete} deletionString={"Bild"}/>
 
     </div>
   );

@@ -19,6 +19,7 @@ export interface Machine {
     file_path: string,
     original_filename: string,
     file_type: string,
-    mime_type: string
+    mime_type: string,
+    category: string | undefined
   }[]
 }

@@ -23,8 +23,8 @@ export const getMachineInfo = (id: string) =>
 export const deleteMachine = (id: string) =>
   API.delete(`/machines/${id}`);
 
-export const uploadFile = (id: string, file: any) =>
-    API.post<Machine>(`/machines/${id}/upload`, file)
+export const uploadFile = (id: string, category: string | undefined, file: any) =>
+    API.post<Machine>(`/machines/${id}/upload?category=${category ?? ""}`, file)
 
 export const deleteFile = (id: string) =>
     API.delete(`files/${id}`)

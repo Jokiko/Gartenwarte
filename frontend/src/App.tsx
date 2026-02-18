@@ -75,12 +75,12 @@ function App() {
     setMachinesOrder([])
   }
 
-  const handleFileupload = async (file: any)=>  {
+  const handleFileupload = async (file: any, category: string | undefined)=>  {
     if ( displayMachine === null) return
     console.log(file)
     const formData = new FormData();
     formData.append("file", file);
-    await uploadFile(displayMachine?.id!, formData).then(async () => {
+    await uploadFile(displayMachine?.id!, category, formData).then(async () => {
         const newMachine = (await getMachineInfo(displayMachine.id!)).data
         console.log(newMachine)
         setDisplayMachine(newMachine)
@@ -98,8 +98,6 @@ function App() {
         await loadMachines();
       })
   }
-
-  console.log(displayMachine)
 
   return (
     <div className="mx-auto p-6">

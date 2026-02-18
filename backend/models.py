@@ -57,6 +57,7 @@ class MachineFile(Base):
     original_filename = Column(String)
     file_type = Column(String)  # "image" | "document"
     mime_type = Column(String)
+    category = Column(String, nullable=True)
 
     machine_id = Column(String, ForeignKey("machines.id", ondelete="CASCADE"))
     machine = relationship("Machine", back_populates="files")
