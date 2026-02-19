@@ -1,6 +1,6 @@
 import {Box, Button, TextField, Typography} from "@mui/material";
 import { useState, useEffect } from "react";
-import type {Machine} from "./types.ts";
+import type {Machine} from "../types.ts";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 

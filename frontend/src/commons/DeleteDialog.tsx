@@ -1,4 +1,5 @@
 import {Button, Dialog, Typography} from "@mui/material";
+import {useThemeContext} from "../theme/ThemeContext.tsx";
 
 interface Props {
     dataToDelete: any
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export default function DeleteDialog( {dataToDelete, setDataToDelete, onDelete, deletionString}: Props ){
+
+    const { mode } = useThemeContext();
 
     return (
         <Dialog
@@ -19,7 +22,7 @@ export default function DeleteDialog( {dataToDelete, setDataToDelete, onDelete, 
               {deletionString} wirklich löschen?
           </Typography>
 
-          <Typography className="text-gray-600">
+          <Typography className={`${mode === "dark" ? "text-gray-300": "text-gray-600"}`}>
             Diese Aktion kann nicht rückgängig gemacht werden.
           </Typography>
 

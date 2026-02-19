@@ -7,10 +7,11 @@ import {
     Divider, IconButton, Dialog
 } from "@mui/material";
 import UploadIcon from "@mui/icons-material/Upload";
-import type {Machine} from "./types";
+import type {Machine} from "../types.ts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
-import DeleteDialog from "./commons/DeleteDialog.tsx";
+import DeleteDialog from "../commons/DeleteDialog.tsx";
+import {useThemeContext} from "../theme/ThemeContext.tsx";
 
 interface Props {
   machine: Machine;
@@ -47,6 +48,8 @@ export const MachineProfile: React.FC<Props> = ({
     onImageUpload(e.target.files[0], category);
   };
 
+  const { mode } = useThemeContext();
+
   return (
     <div className="max-w-6xl mx-auto min-w-200 p-6 space-y-8">
 
@@ -60,7 +63,7 @@ export const MachineProfile: React.FC<Props> = ({
                 {machine.name}
               </Typography>
 
-              <Typography className="text-gray-500 mt-2">
+              <Typography className={`${ mode === "dark" ? "text-gray-400" : "text-gray-500"} mt-2`}>
                 {machine.manufacturer} • {machine.category} {machine.article_number ? `• Artikel-Nr: ${machine.article_number}` : ""}
               </Typography>
             </div>
@@ -140,7 +143,7 @@ export const MachineProfile: React.FC<Props> = ({
             {purchaseInvoice ?
               <li
                   key={purchaseInvoice.id}
-                  className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg"
+                  className={`flex items-center justify-between ${mode === "dark" ? "bg-gray-800" : "bg-gray-50"} px-3 py-2 rounded-lg`}
               >
                 <a
                   href={`http://localhost:8000/uploads/${purchaseInvoice.file_path}`}
@@ -202,7 +205,7 @@ export const MachineProfile: React.FC<Props> = ({
             {maintenanceInvoice ?
               <li
                   key={maintenanceInvoice.id}
-                  className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg"
+                  className={`flex items-center justify-between ${mode === "dark" ? "bg-gray-800" : "bg-gray-50"} px-3 py-2 rounded-lg`}
               >
                 <a
                   href={`http://localhost:8000/uploads/${maintenanceInvoice.file_path}`}
@@ -335,7 +338,7 @@ export const MachineProfile: React.FC<Props> = ({
             {galleryDocs.map((doc) => (
               <li
                 key={doc.id}
-                className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg"
+                className={`flex items-center justify-between ${mode === "dark" ? "bg-gray-800" : "bg-gray-50"} px-3 py-2 rounded-lg`}
               >
                 <a
                   href={`http://localhost:8000/uploads/${doc.file_path}`}

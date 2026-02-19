@@ -11,9 +11,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {ArrowUpward} from "@mui/icons-material";
 import {ArrowDownward} from "@mui/icons-material";
-import type {Machine} from "./types.ts";
+import type {Machine} from "../types.ts";
 import {useState} from "react";
-import DeleteDialog from "./commons/DeleteDialog.tsx";
+import DeleteDialog from "../commons/DeleteDialog.tsx";
 
 interface Props {
   machines: Machine[];
